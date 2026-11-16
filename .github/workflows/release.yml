@@ -1,15 +1,20 @@
 # Publishes Flipper whenever main changes.
 #
-# The version comes from "## Version:" in Flipper.toc. If no tag v<version>
-# exists yet, this creates it, builds the zip, makes a GitHub release and
-# uploads the file to CurseForge. If the tag already exists, nothing is
-# published, so a merge only releases when it raises the version.
+# The version comes from "## Version:" in Flipper.toc.
+#
+#   1. A push to main runs the "tag" job. If no tag v<version> exists yet, it
+#      creates one and starts this workflow again on that tag.
+#   2. The run on the tag does the "package" job: it builds the zip, makes a
+#      GitHub release and uploads the file to CurseForge.
+#
+# If the tag already exists nothing is published, so a merge only releases
+# when it raises the version.
 #
 # CurseForge upload needs two things (see README):
-#   1. repository secret CF_API_KEY (a CurseForge API token)
-#   2. a line "## X-Curse-Project-ID: <id>" in Flipper.toc
+#   - repository secret CF_API_KEY (a CurseForge API token)
+#   - a line "## X-Curse-Project-ID: <id>" in Flipper.toc
 #
-# "Run workflow" (manual) rebuilds and uploads the current version again,
+# "Run workflow" on main (manual) publishes the current version again,
 # e.g. after adding the secret.
 name: Release
 
@@ -20,13 +25,11 @@ on:
 
 permissions:
   contents: write
-
-concurrency:
-  group: release
-  cancel-in-progress: false
+  actions: write
 
 jobs:
-  release:
+  tag:
+    if: github.ref_type == 'branch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -58,14 +61,22 @@ jobs:
           git tag -a "$TAG" -m "Flipper $TAG"
           git push origin "$TAG"
 
-      - name: Check out the existing tag (manual run)
-        if: steps.version.outputs.exists == 'true' && github.event_name == 'workflow_dispatch'
+      - name: Start the release for this tag
+        if: steps.version.outputs.exists == 'false' || github.event_name == 'workflow_dispatch'
         env:
+          GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
-        run: git checkout "$TAG"
+        run: gh workflow run release.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
+
+  package:
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Package and upload
-        if: steps.version.outputs.exists == 'false' || github.event_name == 'workflow_dispatch'
         uses: BigWigsMods/packager@v2
         env:
           CF_API_KEY: ${{ secrets.CF_API_KEY }}
