@@ -39,26 +39,11 @@ Get it from CurseForge, or download a release from this repository and unzip
 it into `World of Warcraft/_forever_/Interface/AddOns`, so that the folder
 `AddOns/Flipper` contains `Flipper.toc`.
 
-### Coming from TradeLog
-
-Flipper used to be called TradeLog. To keep your old log, close the game, go
-to `World of Warcraft/_forever_/WTF/Account/<ACCOUNT>/SavedVariables`, copy
-`TradeLog.lua` and name the copy `Flipper.lua`. Then delete the old
-`AddOns/TradeLog` folder. Flipper picks the log up at the next login.
-
 ## Releases
 
 Every change merged into `main` that raises `## Version:` in `Flipper.toc` is
 tagged, packaged and published by `.github/workflows/release.yml`, as a GitHub
 release and on CurseForge.
-
-One-time setup for the CurseForge upload:
-
-1. Create the project on CurseForge and note its project ID.
-2. Add the line `## X-Curse-Project-ID: <id>` to `Flipper.toc`.
-3. Create an API token in your CurseForge author account (API tokens) and
-   store it as the repository secret `CF_API_KEY`
-   (Settings → Secrets and variables → Actions).
 
 ## License
 
