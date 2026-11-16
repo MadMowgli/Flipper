@@ -1,0 +1,5 @@
+package-as: Flipper
+
+ignore:
+  - README.md
+  - .github

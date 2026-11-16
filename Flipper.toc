@@ -1,0 +1,11 @@
+## Interface: 16001
+## Title: Flipper
+## Notes: Logs your auction house buyouts and compares them with Auctionator's latest scan prices. /flip
+## Author: MadMowgli
+## Version: 0.4.0
+## Dependencies: Auctionator
+## SavedVariables: FlipperDB, TradeLogDB
+
+Categories.lua
+Core.lua
+UI.lua
